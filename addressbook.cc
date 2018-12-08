@@ -18,6 +18,7 @@ struct Person {
 };
 
 //prototypes
+void deleteEntry(struct Person*);
 void insertPerson(struct Person*);
 int menuChoice();
 void loadAddressBook();
@@ -56,31 +57,20 @@ void addPerson() {
     insertPerson(newPerson);
 }
 
-/*void buildList() {
-    struct Person* current = NULL;
-
-    //allocate memory for new entries
-    current = new Person;
-    current->first_name = "Siouxsie";
-    current->last_name = "Sioux";
-    current->phone = "702-555-5555";
-    current->address = "3570 S Las Vegas Blvd, Las Vegas, NV 89109";
-    insertPerson(current);
-
-    current = new Person;
-    current->first_name = "Morticia";
-    current->last_name = "Addams";
-    current->phone = "415-666-1313";
-    current->address = "13 Funston Street, San Francisco, CA 94129";
-    insertPerson(current);
-
-    current = new Person;
-    current->first_name = "Norman";
-    current->last_name = "Bates";
-    current->phone = "323-555-5555";
-    current->address = "1070 272nd Street, Aldergrove, BC V4W 2P8, Canada";
-    insertPerson(current);
-}*/
+void deleteEntry(struct Person *iter) {
+  struct Person *preiter = head;
+  while (preiter != NULL) {
+    if(preiter->next == iter) {
+      preiter->next = iter->next;
+    }
+    else if(iter == head) {
+      head = iter->next;
+    }
+    else
+      preiter = preiter->next;
+  }
+  delete iter;
+}
 
 //edit menu
 int editChoice() {
@@ -152,23 +142,23 @@ void editEntry(struct Person* current){
   }
 }
 
-//insert entry in list alphabetically by last name
-void insertPerson(struct Person* newPerson) {
-  struct Person* current = head;
-  if(head == NULL || strcmp(newPerson->last_name, head->last_name) < 0) {
-    newPerson->next = head;
-    head = newPerson;
+// Insert entry in list alphabetically by last name
+void insertPerson(struct Person* current) {
+  struct Person* newPerson = head;
+  if(head == NULL || strcmp(current->last_name, head->last_name) < 0) {
+    current->next = head;
+    head = current;
   }
   else {
-    while(current->next != NULL) {
-      if(strcmp(newPerson->last_name, current->next->last_name) < 0) {
+    while(newPerson->next != NULL) {
+      if(strcmp(current->last_name, newPerson->next->last_name) < 0) {
         break;
       }
       else
-        current = current->next;
+        newPerson = newPerson->next;
     }
-    newPerson->next = current->next;
-    current->next = newPerson;
+    current->next = newPerson->next;
+    newPerson->next = current;
   }
 }
 
@@ -192,12 +182,10 @@ void loadAddressBook() {
       insertPerson(newPerson);
 
       newPerson = new Person;
-      cout << "Reading...\n";
       people.read(reinterpret_cast<char *>(newPerson), sizeof(*newPerson));
     }
     cout << "Closing file...\n";
     people.close();
-    printAddressBook();
   }
 }
 
@@ -209,7 +197,7 @@ void menu() {
       switch (choice) {
         case 1 :    addPerson();
                     break;
-        case 2 :    //delete person
+        case 2 :    search();
                     break;
         case 3 :    search();
                     break;
@@ -406,7 +394,7 @@ void searchMenu(struct Person* iter) {
   switch (choice) {
     case 1 :  editEntry(iter);
               break;
-    case 2 :  //delete entry
+    case 2 :  deleteEntry(iter);
               break;
     }
 }
